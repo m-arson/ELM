@@ -1,17 +1,13 @@
 close all
 clc
 
-raw_data = load("Data12.csv");
+raw_data = load("Data39.csv");
 
-% Training Data
+P_Q = raw_data(1:39,3:4);
+V_T = raw_data(1:39,1:2);
 
-P_Q = raw_data(1:9,3:4);
-V_T = raw_data(1:9,1:2);
-
-% Testing Data
-
-P_Q_test = raw_data(10:end, 3:4);
-V_T_test = raw_data(10:end, 1:2);
+P_Q_test = raw_data(33:end, 3:4);
+V_T_test = raw_data(33:end, 1:2);
 
 clear raw_data;
 
@@ -48,31 +44,22 @@ H_init = P_Q * W';
 H = 1 ./ (1 + exp(-H_init));
 H_plus = (H' * H)^-1 * H';
 beta = H_plus * V_T;
+
 Y_VnT = H * beta;
 
 end_training_time = cputime;
 
 MAPE = abs(mean(remove_zero(abs(Y_VnT - V_T) / V_T))) * 100;
 
-fprintf("\nTRAINING\n\n");
-fprintf("MAPE                      : %.5f\n", MAPE);
-fprintf("Waktu Training            : %.5f s\n", end_training_time - start_training_time);
-
-% Testing 
-start_testing_time = cputime;
-
 H_init_test = P_Q_test * W';
 H_test = 1 ./ (1 + exp(-H_init_test));
 Y_VnT_test = H_test * beta;
 
-end_testing_time = cputime;
-
 [acc_V, acc_T] = accuracy_score(V_T, Y_VnT, V_T_test, Y_VnT_test);
 
-fprintf("\nTESTING\n");
-fprintf("\nAkurasi Testing Tegangan   : %.2f %c", acc_V * 100, '%');
-fprintf("\nAkurasi Testing Sudut Fasa : %.2f %c", acc_T * 100, '%');
-fprintf("\nWaktu Testing              : %.5f s\n", end_testing_time - start_testing_time);
+fprintf("\nAkurasi Output Tegangan   : %.2f %c", acc_V * 100, '%');
+fprintf("\nAkurasi Output Sudut Fasa : %.2f %c", acc_T * 100, '%');
+fprintf("\nWaktu Training            : %f s\n", end_training_time - start_training_time);
 
 fprintf("\nV Aktual\tSudut Fasa Aktual\tV Prediksi\tSudut Fasa Prediksi\n");
 fprintf("========\t=================\t==========\t===================\n");
